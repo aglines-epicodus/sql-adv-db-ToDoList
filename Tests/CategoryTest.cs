@@ -135,12 +135,10 @@ namespace ToDo
 
     public void Dispose()
     {
-      Console.WriteLine("categories");
       Category.DeleteAll();
       Task.DeleteAll();
       // Console.WriteLine(Task.GetAll().Count);
       // Console.WriteLine(Category.GetAll().Count);
-
     }
   }
 }
