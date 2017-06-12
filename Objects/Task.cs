@@ -218,7 +218,7 @@ namespace ToDo
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("SELECT category_id FROM categories_tasks WHERE task_id = @TaskId;", conn);
+      SqlCommand cmd = new SqlCommand("SELECT categories.* FROM tasks JOIN categories_tasks ON (tasks.id = categories_tasks.task_id) JOIN categories ON (categories.id = categories_tasks.category_id) WHERE tasks.id = @TaskId;", conn);
 
       SqlParameter taskIdParameter = new SqlParameter();
       taskIdParameter.ParameterName = "@TaskId";
@@ -227,41 +227,18 @@ namespace ToDo
 
       SqlDataReader rdr = cmd.ExecuteReader();
 
-      List<int> categoryIds = new List<int> {};
-
-      while (rdr.Read())
+      List<Category> categories = new List<Category>{};
+      while(rdr.Read())
       {
         int categoryId = rdr.GetInt32(0);
-        categoryIds.Add(categoryId);
+        string categoryName = rdr.GetString(1);
+        Category newCategory = new Category(categoryName, categoryId);
+        categories.Add(newCategory);
       }
+
       if (rdr != null)
       {
         rdr.Close();
-      }
-
-      List<Category> categories = new List<Category> {};
-
-      foreach (int categoryId in categoryIds)
-      {
-        SqlCommand categoryQuery = new SqlCommand("SELECT * FROM categories WHERE id = @CategoryId;", conn);
-
-        SqlParameter categoryIdParameter = new SqlParameter();
-        categoryIdParameter.ParameterName = "@CategoryId";
-        categoryIdParameter.Value = categoryId;
-        categoryQuery.Parameters.Add(categoryIdParameter);
-
-        SqlDataReader queryReader = categoryQuery.ExecuteReader();
-        while (queryReader.Read())
-        {
-          int thisCategoryId = queryReader.GetInt32(0);
-          string categoryName = queryReader.GetString(1);
-          Category foundCategory = new Category(categoryName, thisCategoryId);
-          categories.Add(foundCategory);
-        }
-        if (queryReader != null)
-        {
-          queryReader.Close();
-        }
       }
       if (conn != null)
       {
@@ -269,9 +246,6 @@ namespace ToDo
       }
       return categories;
     }
-
-
-
 
     public override int GetHashCode()
     {
