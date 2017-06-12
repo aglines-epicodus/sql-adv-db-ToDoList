@@ -8,18 +8,26 @@ namespace ToDo
   {
     public HomeModule()
     {
+
       Get["/"] = _ => {
-        List<Category> allCategories = Category.GetAll();
-        return View["index.cshtml", allCategories];
+        return View["index.cshtml"];
       };
+      // Get["/"] = _ => {
+      //   List<Category> allCategories = Category.GetAll();
+      //   return View["index.cshtml", allCategories];
+      // };
       Get["/tasks"] = _ => {
         List<Task> AllTasks = Task.GetAll();
         return View["tasks.cshtml", AllTasks];
       };
+
       Get["/categories"] = _ => {
         List<Category> AllCategories = Category.GetAll();
         return View["categories.cshtml", AllCategories];
       };
+
+
+
       Get["/categories/new"] = _ => {
         return View["categories_form.cshtml"];
       };

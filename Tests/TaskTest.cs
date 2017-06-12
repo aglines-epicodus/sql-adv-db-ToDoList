@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 
 namespace ToDo
 {
+  [Collection("ToDo")]
+
   public class ToDoTest : IDisposable
   {
     public ToDoTest()
@@ -27,8 +29,8 @@ namespace ToDo
     public void Test_Equal_ReturnsTrueIfDescriptionsAreTheSame()
     {
       //Arrange, Act
-      Task firstTask = new Task("Mow the lawn", 1, "1/2/17");
-      Task secondTask = new Task("Mow the lawn", 1, "1/2/17");
+      Task firstTask = new Task("Mow the lawn", "1/2/17");
+      Task secondTask = new Task("Mow the lawn", "1/2/17");
 
       //Assert
       Assert.Equal(firstTask, secondTask);
@@ -38,7 +40,7 @@ namespace ToDo
     public void Test_Save_SavesToDatabase()
     {
       //Arrange
-      Task testTask = new Task("Mow the lawn", 1, "1/2/17");
+      Task testTask = new Task("Mow the lawn", "1/2/17");
 
       //Act
       testTask.Save();
@@ -49,41 +51,64 @@ namespace ToDo
       Assert.Equal(testList, result);
     }
 
-    // [Fact]
-    // public void Test_Save_AssignsIdToObject()
-    // {
-    //   //Arrange
-    //   Task testTask = new Task("Mow the lawn", 1, "1/2/17");
-    //
-    //   //Act
-    //   testTask.Save();
-    //   Task savedTask = Task.GetAll()[0];
-    //
-    //   int result = savedTask.GetId();
-    //   int testId = testTask.GetId();
-    //
-    //   //Assert
-    //   Assert.Equal(testId, result);
-    // }
-
     [Fact]
     public void Test_Find_FindsTaskInDatabase()
     {
-      Task testTask = new Task("Do the dishes", 1, "1/2/17");
+      Task testTask = new Task("Do the dishes", "1/2/17");
       testTask.Save();
 
       Task foundTask = Task.Find(testTask.GetId());
 
-      // Console.WriteLine($"description: {testTask.GetDescription()}, ID: {testTask.GetId()}, catId: {testTask.GetCategoryId()}");
-      // Console.WriteLine($"description: {foundTask.GetDescription()}, ID: {foundTask.GetId()}, catId: {foundTask.GetCategoryId()}");
+
       Assert.Equal(testTask, foundTask);
     }
+
+    [Fact]
+    public void Test_AddCategory_AddsCategoryToTask()
+    {
+      //Arrange
+      Task testTask = new Task("Mow the lawn", "1/2/17");
+      testTask.Save();
+
+      Category testCategory = new Category("Home stuff");
+      testCategory.Save();
+
+      //Act
+      testTask.AddCategory(testCategory);
+
+      List<Category> result = testTask.GetCategories();
+      List<Category> testList = new List<Category>{testCategory};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
+    [Fact]
+    public void Task_GetCategories_ReturnsAllTaskCategories()
+    {
+      //Arrange
+      Task testTask = new Task("Mow the lawn", "1/2/17");
+      testTask.Save();
+
+      Category testCategory1 = new Category("Home stuff");
+      testCategory1.Save();
+
+      Category testCategory2 = new Category("Work stuff");
+      testCategory2.Save();
+
+      //Act
+      testTask.AddCategory(testCategory1);
+      List<Category> result = testTask.GetCategories();
+      List<Category> testList = new List<Category> {testCategory1};
+
+      //Assert
+      Assert.Equal(testList, result);
+    }
+
 
     public void Dispose()
     {
       Task.DeleteAll();
-      // Console.WriteLine(Task.GetAll().Count);
-      // Console.WriteLine(Category.GetAll().Count);
     }
   }
 }
